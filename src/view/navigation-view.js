@@ -1,3 +1,5 @@
+import {createElement} from '../render.js';
+
 const createFilterItemTemplate = ({name, count}) => {
   const nameCapitalized = name.charAt(0).toUpperCase() + name.slice(1);
 
@@ -9,8 +11,8 @@ const createFiltersTemplate = (filterItems) => filterItems
   .join('');
 
 
-export const createNavigationTemplate = (filter) => {
-  const filtersTemplate = createFiltersTemplate(filter);
+const createNavigationTemplate = (filters) => {
+  const filtersTemplate = createFiltersTemplate(filters);
 
   return `<nav class="main-navigation">
     <div class="main-navigation__items">
@@ -21,3 +23,27 @@ export const createNavigationTemplate = (filter) => {
   </nav>`;
 };
 
+export default class NavigationView {
+  #element = null;
+  #filter = null;
+
+  constructor(filters) {
+    this.#filter = filters;
+  }
+
+  get element() {
+    if (!this.#element) {
+      this.#element = createElement(this.template);
+    }
+
+    return this.#element;
+  }
+
+  get template() {
+    return createNavigationTemplate(this.#filter);
+  }
+
+  removeElement() {
+    this.#element = null;
+  }
+}

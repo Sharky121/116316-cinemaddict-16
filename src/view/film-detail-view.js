@@ -2,6 +2,7 @@ import dayjs from 'dayjs';
 import relativeTime from 'dayjs/plugin/relativeTime';
 import {humanizeTime} from '../utils.js';
 import {EMOTIONS} from '../consts.js';
+import {createElement} from '../render.js';
 
 dayjs.extend(relativeTime);
 
@@ -28,7 +29,7 @@ const humanizeCommentDate = (date) => {
     : dayjs(date).fromNow();
 };
 
-const createCommentTemplate = (comment) => {
+const createCommentTemplate = (comment = {}) => {
   const {author, text, date, emotion} = comment;
 
   return (
@@ -75,7 +76,7 @@ const createGenresTemplate = (genres) => genres
   .map((genre) => `<span class="film-details__genre">${genre}</span>`)
   .join('');
 
-export const filmDetailTemplate = (film, comments) => {
+const filmDetailTemplate = (film, comments) => {
   const {
     filmInfo: {
       title,
@@ -190,3 +191,30 @@ export const filmDetailTemplate = (film, comments) => {
     </section>`
   );
 };
+
+export default class FilmDetailView {
+  #element = null;
+  #film = null;
+  #comments = null;
+
+  constructor(film, comments) {
+    this.#film = film;
+    this.#comments = comments;
+  }
+
+  get element() {
+    if (!this.#element) {
+      this.#element = createElement(this.template);
+    }
+
+    return this.#element;
+  }
+
+  get template() {
+    return filmDetailTemplate(this.#film, this.#comments);
+  }
+
+  remove() {
+    this.#element = null;
+  }
+}
