@@ -1,3 +1,4 @@
+import {COMMENTS_COUNT} from './consts.js';
 import {RenderPosition, renderTemplate} from './render.js';
 import {createProfileTemplate} from './view/profile-view.js';
 import {createNavigationTemplate} from './view/navigation-view.js';
@@ -7,10 +8,15 @@ import {createFilmsListTemplate} from './view/films-list-view.js';
 import {createStatisticsTemplate} from './view/statistics-view.js';
 import {createFilmCardTemplate} from './view/film-card-view.js';
 import {createShowMoreButtonTemplate} from './view/show-more-button-view.js';
+import {generateFilm} from './mock/film.js';
+import {filmDetailTemplate} from './view/film-detail-view.js';
+import {generateComment} from './mock/comment.js';
+import {generateFilter} from './mock/filter.js';
 
-const Counts = {
-  ALL: 5,
+const filmCounts = {
+  ALL: 17,
   EXTRA: 2,
+  FILM_PER_STEP: 5,
 };
 
 const FilmsSectionType = {
@@ -28,20 +34,50 @@ const FilmsSectionType = {
   },
 };
 
+const films = Array.from({length: filmCounts.ALL}, generateFilm);
+const comments = new Array(COMMENTS_COUNT)
+  .fill(null)
+  .map((item, index) => generateComment(index));
+
+const filmComments = films[0].comments.map((id) => comments[id]);
+const filters = generateFilter(films);
+
+const bodyElement = document.querySelector('body');
 const headerElement = document.querySelector('.header');
 const mainElement = document.querySelector('.main');
 const footerStatisticsElement = document.querySelector('.footer__statistics');
 
-const renderFilmCards = (container, isExtra) => {
-  const count = !isExtra ? Counts.ALL : Counts.EXTRA;
+const renderFilmCards = (filmsList, isExtra) => {
+  const filmsContainerElement = filmsList.querySelector('.films-list__container');
+  const count = !isExtra ? films.length : filmCounts.EXTRA;
 
-  for (let i = 0; i < count; i++) {
-    renderTemplate(container, createFilmCardTemplate());
+  for (let i = 0; i < Math.min(count, filmCounts.FILM_PER_STEP); i++) {
+    renderTemplate(filmsContainerElement, createFilmCardTemplate(films[i]));
+  }
+
+  if (films.length > filmCounts.FILM_PER_STEP && !isExtra) {
+    let renderedFilmCount = filmCounts.FILM_PER_STEP;
+
+    renderTemplate(filmsContainerElement, createShowMoreButtonTemplate(), RenderPosition.AFTEREND);
+
+    const showMoreButton = filmsList.querySelector('.films-list__show-more');
+
+    showMoreButton.addEventListener('click', () => {
+      films
+        .slice(renderedFilmCount, renderedFilmCount + filmCounts.FILM_PER_STEP)
+        .forEach((film) => renderTemplate(filmsContainerElement, createFilmCardTemplate(film)));
+
+      renderedFilmCount += filmCounts.FILM_PER_STEP;
+
+      if (renderedFilmCount >= films.length) {
+        showMoreButton.remove();
+      }
+    });
   }
 };
 
-renderTemplate(headerElement, createProfileTemplate());
-renderTemplate(mainElement, createNavigationTemplate(), RenderPosition.AFTERBEGIN);
+renderTemplate(headerElement, createProfileTemplate(films));
+renderTemplate(mainElement, createNavigationTemplate(filters), RenderPosition.AFTERBEGIN);
 renderTemplate(mainElement, createSortTemplate());
 renderTemplate(mainElement, createFilmsElement());
 
@@ -54,15 +90,11 @@ const filmsElement = mainElement.querySelector('.films');
 const filmsListElements = [...mainElement.querySelectorAll('.films-list')];
 
 filmsListElements.forEach((element) => {
-  const filmsContainerElement = element.querySelector('.films-list__container');
   const isExtra = element.classList.contains('films-list--extra');
 
-  if (!isExtra) {
-    renderFilmCards(filmsContainerElement, isExtra);
-    renderTemplate(filmsContainerElement, createShowMoreButtonTemplate(), RenderPosition.AFTEREND);
-  } else {
-    renderFilmCards(filmsContainerElement, isExtra);
-  }
+  renderFilmCards(element, isExtra);
 });
 
 renderTemplate(footerStatisticsElement, createStatisticsTemplate());
+
+renderTemplate(bodyElement, filmDetailTemplate(films[0], filmComments));
