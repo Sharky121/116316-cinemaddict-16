@@ -1,3 +1,5 @@
+import {createElement} from '../render.js';
+
 const watchedToRating = (films) => {
   const watchedFilms = films.filter((film) => film.userDetails.alreadyWatched).length;
 
@@ -14,7 +16,7 @@ const watchedToRating = (films) => {
   }
 };
 
-export const createProfileTemplate = (films) => {
+const createProfileTemplate = (films) => {
   const profileTitle = watchedToRating(films);
 
   return (
@@ -24,3 +26,28 @@ export const createProfileTemplate = (films) => {
    </section>`
   );
 };
+
+export default class ProfileView {
+  #element = null;
+  #films = null;
+
+  constructor(films) {
+    this.#films = films;
+  }
+
+  get element() {
+    if (!this.#element) {
+      this.#element = createElement(this.template);
+    }
+
+    return this.#element;
+  }
+
+  get template() {
+    return createProfileTemplate(this.#films);
+  }
+
+  removeElement() {
+    this.#element = null;
+  }
+}

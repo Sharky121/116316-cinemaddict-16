@@ -1,5 +1,7 @@
 export const IMAGE_URL = './images/posters/';
 
+export const BODY_CLASS_HIDE_OVERFLOW = 'hide-overflow';
+
 export const RATINGS = [0, 6, 12, 16, 18];
 
 export const DESCRIPTION_CHAR_COUNT = 140;
