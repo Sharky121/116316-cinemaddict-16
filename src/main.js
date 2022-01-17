@@ -1,4 +1,4 @@
-import {COMMENTS_COUNT, BODY_CLASS_HIDE_OVERFLOW} from './consts.js';
+import {filmCounts, FilmsSectionType, COMMENTS_COUNT, BODY_CLASS_HIDE_OVERFLOW} from './consts.js';
 import {render, RenderPosition} from './render.js';
 import ProfileView from './view/profile-view.js';
 import NavigationView from './view/navigation-view.js';
@@ -13,35 +13,6 @@ import NoFilmView from './view/no-film-view.js';
 import {generateFilm} from './mock/film.js';
 import {generateComment} from './mock/comment.js';
 import {generateFilter} from './mock/filter.js';
-
-const filmCounts = {
-  ALL: 1,
-  EXTRA: 2,
-  FILM_PER_STEP: 5,
-};
-
-const FilmsSectionType = {
-  ALL: {
-    title: 'All movies. Upcoming',
-    isExtra: false,
-    isEmpty: false,
-  },
-  TOP: {
-    title: 'Top rated',
-    isExtra: true,
-    isEmpty: false,
-  },
-  MOST_COMMENTED: {
-    title: 'Most commented',
-    isExtra: true,
-    isEmpty: false,
-  },
-  EMPTY: {
-    title: '',
-    isExtra: false,
-    isEmpty: true,
-  },
-};
 
 const NodesElement = {
   body: document.querySelector('body'),
@@ -61,19 +32,15 @@ const headerElement = document.querySelector('.header');
 const mainElement = document.querySelector('.main');
 const footerStatisticsElement = document.querySelector('.footer__statistics');
 
-const renderNoFilms = (filmsListElement) => {
+const renderNoFilms = (filmsContainer) => {
   const noFilmElement = new NoFilmView();
-  console.log(filmsListElement);
 
-  render(noFilmElement, filmsListElement);
-
-  // filmsListElement.appendChild(noFilmElement.element);
+  render(filmsContainer, noFilmElement);
 };
 
 const renderDetailsFilmCard = (film) => {
   const filmComments = film.comments.map((id) => comments[id]);
   const detailFilmCardComponent = new FilmDetailView(film, filmComments);
-  const closeButtonElement = detailFilmCardComponent.element.querySelector('.film-details__close-btn');
 
   const closeDetailsFilmCard = () => {
     NodesElement.body.removeChild(detailFilmCardComponent.element);
@@ -93,22 +60,16 @@ const renderDetailsFilmCard = (film) => {
   NodesElement.body.appendChild(detailFilmCardComponent.element);
   NodesElement.body.classList.add(BODY_CLASS_HIDE_OVERFLOW);
 
-  closeButtonElement.addEventListener('click', closeDetailsFilmCard);
+  detailFilmCardComponent.setButtonCloseHandler(closeDetailsFilmCard);
   document.addEventListener('keydown', onEscKeyDown);
 };
 
 const renderFilmCard = (containerElement, film) => {
   const filmCardComponent = new FilmCardView(film);
-  const filmCardLinkElement = filmCardComponent
-    .element
-    .querySelector('.film-card__link');
-
-  console.log(containerElement);
-  console.log(filmCardComponent);
 
   render(containerElement, filmCardComponent);
 
-  filmCardLinkElement.addEventListener('click', () => {
+  filmCardComponent.setClickHandler(() => {
     renderDetailsFilmCard(film);
   });
 };
@@ -129,7 +90,7 @@ const renderFilmCards = (filmsList, isExtra) => {
 
     render(filmsContainerElement, showMoreButton, RenderPosition.AFTEREND);
 
-    showMoreButton.element.addEventListener('click', () => {
+    showMoreButton.setClickHandler(() => {
       films
         .slice(renderedFilmCount, renderedFilmCount + filmCounts.FILM_PER_STEP)
         .forEach((film) => renderFilmCard(filmsContainerElement, film));
@@ -152,13 +113,15 @@ const filmsElement = new FilmsView();
 
 render(mainElement, filmsElement);
 
-[...Object.values(FilmsSectionType)].forEach(({title, isExtra, isEmpty}) => {
-  const filmsListElement = new FilmsListView(title, isExtra, isEmpty);
+if (films.length === 0) {
+  renderNoFilms(filmsElement);
+} else {
+  [...Object.values(FilmsSectionType)].forEach(({title, isExtra}) => {
+    const filmsListElement = new FilmsListView(title, isExtra);
 
-  if (!isEmpty) {
     render(filmsElement, filmsListElement);
     renderFilmCards(filmsListElement, isExtra);
-  }
-});
+  });
+}
 
 render(footerStatisticsElement, new StatisticsView(1345));

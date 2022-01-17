@@ -1,3 +1,27 @@
+export const filmCounts = {
+  ALL: 12,
+  EXTRA: 2,
+  FILM_PER_STEP: 5,
+};
+
+export const FilmsSectionType = {
+  ALL: {
+    title: 'All movies. Upcoming',
+    isExtra: false,
+    isEmpty: false,
+  },
+  TOP: {
+    title: 'Top rated',
+    isExtra: true,
+    isEmpty: false,
+  },
+  MOST_COMMENTED: {
+    title: 'Most commented',
+    isExtra: true,
+    isEmpty: false,
+  },
+};
+
 export const IMAGE_URL = './images/posters/';
 
 export const BODY_CLASS_HIDE_OVERFLOW = 'hide-overflow';
