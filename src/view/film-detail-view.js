@@ -1,8 +1,8 @@
 import dayjs from 'dayjs';
 import relativeTime from 'dayjs/plugin/relativeTime';
-import {humanizeTime} from '../utils.js';
 import {EMOTIONS} from '../consts.js';
-import {createElement} from '../render.js';
+import {humanizeTime} from '../utils/film.js';
+import AbstractView from './abstract-view.js';
 
 dayjs.extend(relativeTime);
 
@@ -192,29 +192,17 @@ const filmDetailTemplate = (film, comments) => {
   );
 };
 
-export default class FilmDetailView {
-  #element = null;
+export default class FilmDetailView extends AbstractView {
   #film = null;
   #comments = null;
 
   constructor(film, comments) {
+    super();
     this.#film = film;
     this.#comments = comments;
   }
 
-  get element() {
-    if (!this.#element) {
-      this.#element = createElement(this.template);
-    }
-
-    return this.#element;
-  }
-
   get template() {
     return filmDetailTemplate(this.#film, this.#comments);
-  }
-
-  remove() {
-    this.#element = null;
   }
 }

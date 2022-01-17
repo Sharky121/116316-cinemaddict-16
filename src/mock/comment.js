@@ -1,5 +1,6 @@
 import {DESCRIPTION, EMOTIONS, COMMENT_AUTHORS} from '../consts.js';
-import {getRandomItemFromArray, generateDescription, generateRandomDate} from '../utils.js';
+import {generateDescription} from '../utils/film.js';
+import {getRandomItemFromArray, generateRandomDate} from '../utils/common.js';
 
 export const generateComment = (id) => ({
   id: id,

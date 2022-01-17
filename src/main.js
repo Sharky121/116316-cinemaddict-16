@@ -15,7 +15,7 @@ import {generateComment} from './mock/comment.js';
 import {generateFilter} from './mock/filter.js';
 
 const filmCounts = {
-  ALL: 17,
+  ALL: 1,
   EXTRA: 2,
   FILM_PER_STEP: 5,
 };
@@ -40,7 +40,7 @@ const FilmsSectionType = {
     title: '',
     isExtra: false,
     isEmpty: true,
-  }
+  },
 };
 
 const NodesElement = {
@@ -61,6 +61,15 @@ const headerElement = document.querySelector('.header');
 const mainElement = document.querySelector('.main');
 const footerStatisticsElement = document.querySelector('.footer__statistics');
 
+const renderNoFilms = (filmsListElement) => {
+  const noFilmElement = new NoFilmView();
+  console.log(filmsListElement);
+
+  render(noFilmElement, filmsListElement);
+
+  // filmsListElement.appendChild(noFilmElement.element);
+};
+
 const renderDetailsFilmCard = (film) => {
   const filmComments = film.comments.map((id) => comments[id]);
   const detailFilmCardComponent = new FilmDetailView(film, filmComments);
@@ -69,7 +78,7 @@ const renderDetailsFilmCard = (film) => {
   const closeDetailsFilmCard = () => {
     NodesElement.body.removeChild(detailFilmCardComponent.element);
     NodesElement.body.classList.remove(BODY_CLASS_HIDE_OVERFLOW);
-    detailFilmCardComponent.remove();
+    detailFilmCardComponent.removeElement();
   };
 
   const onEscKeyDown = (evt) => {
@@ -94,7 +103,10 @@ const renderFilmCard = (containerElement, film) => {
     .element
     .querySelector('.film-card__link');
 
-  render(containerElement, filmCardComponent.element);
+  console.log(containerElement);
+  console.log(filmCardComponent);
+
+  render(containerElement, filmCardComponent);
 
   filmCardLinkElement.addEventListener('click', () => {
     renderDetailsFilmCard(film);
@@ -102,7 +114,7 @@ const renderFilmCard = (containerElement, film) => {
 };
 
 const renderFilmCards = (filmsList, isExtra) => {
-  const filmsContainerElement = filmsList.querySelector('.films-list__container');
+  const filmsContainerElement = filmsList.element.querySelector('.films-list__container');
   const count = !isExtra
     ? films.length
     : filmCounts.EXTRA;
@@ -112,12 +124,12 @@ const renderFilmCards = (filmsList, isExtra) => {
   }
 
   if (films.length > filmCounts.FILM_PER_STEP && !isExtra) {
-    const showMoreButton = new ShowMoreButtonView().element;
+    const showMoreButton = new ShowMoreButtonView();
     let renderedFilmCount = filmCounts.FILM_PER_STEP;
 
     render(filmsContainerElement, showMoreButton, RenderPosition.AFTEREND);
 
-    showMoreButton.addEventListener('click', () => {
+    showMoreButton.element.addEventListener('click', () => {
       films
         .slice(renderedFilmCount, renderedFilmCount + filmCounts.FILM_PER_STEP)
         .forEach((film) => renderFilmCard(filmsContainerElement, film));
@@ -125,34 +137,28 @@ const renderFilmCards = (filmsList, isExtra) => {
       renderedFilmCount += filmCounts.FILM_PER_STEP;
 
       if (renderedFilmCount >= films.length) {
-        showMoreButton.remove();
+        showMoreButton.element.remove();
+        showMoreButton.removeElement();
       }
     });
   }
 };
 
-render(headerElement, new ProfileView(films).element);
-render(mainElement, new NavigationView(filters).element, RenderPosition.AFTERBEGIN);
-render(mainElement, new SortView().element);
+render(headerElement, new ProfileView(films));
+render(mainElement, new NavigationView(filters), RenderPosition.AFTERBEGIN);
+render(mainElement, new SortView());
 
-const filmsElement = new FilmsView().element;
+const filmsElement = new FilmsView();
 
 render(mainElement, filmsElement);
 
-if (films.length === 0) {
-  const filmsListElement = new FilmsListView(FilmsSectionType.EMPTY.title, FilmsSectionType.EMPTY.isExtra, FilmsSectionType.EMPTY.isEmpty).element;
-  const noFilmElement = new NoFilmView().element;
+[...Object.values(FilmsSectionType)].forEach(({title, isExtra, isEmpty}) => {
+  const filmsListElement = new FilmsListView(title, isExtra, isEmpty);
 
-  render(filmsElement, filmsListElement);
-
-  filmsListElement.appendChild(noFilmElement);
-} else {
-  [...Object.values(FilmsSectionType)].forEach(({title, isExtra}) => {
-    const filmsListElement = new FilmsListView(title, isExtra).element;
-
+  if (!isEmpty) {
     render(filmsElement, filmsListElement);
     renderFilmCards(filmsListElement, isExtra);
-  });
-}
+  }
+});
 
-render(footerStatisticsElement, new StatisticsView(1345).element);
+render(footerStatisticsElement, new StatisticsView(1345));

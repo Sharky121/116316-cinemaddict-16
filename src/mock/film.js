@@ -1,14 +1,13 @@
 import {nanoid} from 'nanoid';
 import {DESCRIPTION, TITLES, IMAGE_URL, POSTERS, DIRECTORS, WRITERS, RATINGS, ACTORS, GENRES, COUNTRIES} from '../consts.js';
+import {getImagePath, generateDescription} from '../utils/film.js';
 import {
   generateRandomArray,
   getRandomInteger,
   getRandomItemFromArray,
   getRandomFloat,
   generateRandomDate,
-  getImagePath,
-  generateDescription,
-} from '../utils.js';
+} from '../utils/common.js';
 
 const generateCommentsArray = () => {
   const newRandomArray = new Array(getRandomInteger(1, 5))

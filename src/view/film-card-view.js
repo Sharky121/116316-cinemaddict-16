@@ -1,6 +1,6 @@
 import dayjs from 'dayjs';
-import {cropText, humanizeTime} from '../utils.js';
-import {createElement} from '../render.js';
+import {cropText, humanizeTime} from '../utils/film.js';
+import AbstractView from './abstract-view.js';
 
 const FilmControlButtons = {
   watchList: {
@@ -27,7 +27,7 @@ const createFilmCardControlsTemplate = (userDetails) => Object
   })
   .join('');
 
-const createFilmCardTemplate = (film) => {
+const createFilmCardTemplate = (film = {}) => {
   const {
     filmInfo: {
       title,
@@ -63,27 +63,15 @@ const createFilmCardTemplate = (film) => {
   );
 };
 
-export default class FilmCardView {
-  #element = null;
+export default class FilmCardView extends AbstractView {
   #film = null;
 
   constructor(film) {
+    super();
     this.#film = film;
-  }
-
-  get element() {
-    if (!this.#element) {
-      this.#element = createElement(this.template);
-    }
-
-    return this.#element;
   }
 
   get template() {
     return createFilmCardTemplate(this.#film);
-  }
-
-  remove() {
-    this.#element = null;
   }
 }
